@@ -1,0 +1,256 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>TodoMaster - Advanced React Todo App</title>
+    <meta name="description" content="A sophisticated task management application built with React 18, featuring priority systems, smart filtering, and local storage persistence.">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>✅</text></svg>">
+    
+    <style>
+        :root {
+            --primary-color: #667eea;
+            --secondary-color: #764ba2;
+            --success-color: #48bb78;
+            --danger-color: #f56565;
+            --warning-color: #ed8936;
+            --info-color: #4299e1;
+            --bg-primary: #ffffff;
+            --bg-secondary: #f7fafc;
+            --bg-gray: #edf2f7;
+            --text-primary: #2d3748;
+            --text-secondary: #718096;
+            --text-light: #a0aec0;
+            --text-white: #ffffff;
+            --border-color: #e2e8f0;
+            --border-radius: 12px;
+            --border-radius-sm: 6px;
+            --shadow-sm: 0 1px 3px rgba(0, 0, 0, 0.1);
+            --shadow-md: 0 4px 6px rgba(0, 0, 0, 0.1);
+            --shadow-lg: 0 10px 15px rgba(0, 0, 0, 0.1);
+            --shadow-xl: 0 20px 25px rgba(0, 0, 0, 0.1);
+            --transition: all 0.3s ease;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+            line-height: 1.6;
+            color: var(--text-primary);
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+        }
+
+        .loading-container {
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        }
+
+        .loading-content {
+            text-align: center;
+            color: white;
+            max-width: 600px;
+            padding: 2rem;
+        }
+
+        .loading-icon {
+            font-size: 4rem;
+            margin-bottom: 1rem;
+            animation: bounce 2s infinite;
+        }
+
+        .loading-title {
+            font-size: 3rem;
+            font-weight: 700;
+            margin-bottom: 1rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 1rem;
+        }
+
+        .loading-subtitle {
+            font-size: 1.2rem;
+            margin-bottom: 2rem;
+            opacity: 0.9;
+        }
+
+        .loading-spinner {
+            display: inline-block;
+            margin: 0 0.5rem;
+            animation: spin 2s linear infinite;
+        }
+
+        .demo-buttons {
+            display: flex;
+            gap: 1rem;
+            justify-content: center;
+            flex-wrap: wrap;
+            margin-top: 2rem;
+        }
+
+        .demo-btn {
+            padding: 1rem 2rem;
+            background: rgba(255, 255, 255, 0.2);
+            color: white;
+            text-decoration: none;
+            border-radius: 50px;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            backdrop-filter: blur(10px);
+            border: 2px solid rgba(255, 255, 255, 0.3);
+        }
+
+        .demo-btn:hover {
+            background: rgba(255, 255, 255, 0.3);
+            transform: translateY(-2px);
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+        }
+
+        .demo-btn.primary {
+            background: white;
+            color: var(--primary-color);
+        }
+
+        .demo-btn.primary:hover {
+            background: #f8f9fa;
+            transform: translateY(-2px);
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        @keyframes bounce {
+            0%, 20%, 50%, 80%, 100% {
+                transform: translateY(0);
+            }
+            40% {
+                transform: translateY(-10px);
+            }
+            60% {
+                transform: translateY(-5px);
+            }
+        }
+
+        .features {
+            margin-top: 2rem;
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 1rem;
+            max-width: 800px;
+        }
+
+        .feature {
+            background: rgba(255, 255, 255, 0.1);
+            padding: 1rem;
+            border-radius: 12px;
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+
+        .feature h4 {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            margin-bottom: 0.5rem;
+        }
+
+        .feature p {
+            font-size: 0.9rem;
+            opacity: 0.9;
+        }
+
+        @media (max-width: 768px) {
+            .loading-title {
+                font-size: 2.5rem;
+                flex-direction: column;
+                gap: 0.5rem;
+            }
+            
+            .demo-buttons {
+                flex-direction: column;
+                align-items: center;
+            }
+            
+            .features {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div id="root">
+        <div class="loading-container">
+            <div class="loading-content">
+                <div class="loading-icon">
+                    <i class="fas fa-check-double"></i>
+                </div>
+                <h1 class="loading-title">
+                    TodoMaster
+                    <i class="fas fa-spinner loading-spinner"></i>
+                </h1>
+                <p class="loading-subtitle">
+                    Advanced React Todo Application - Loading your productivity companion...
+                </p>
+                
+                <div class="features">
+                    <div class="feature">
+                        <h4><i class="fas fa-tasks"></i> Smart Management</h4>
+                        <p>Priority system with visual indicators</p>
+                    </div>
+                    <div class="feature">
+                        <h4><i class="fas fa-filter"></i> Advanced Filtering</h4>
+                        <p>Filter by status and priority levels</p>
+                    </div>
+                    <div class="feature">
+                        <h4><i class="fas fa-chart-line"></i> Real-time Stats</h4>
+                        <p>Progress tracking and completion metrics</p>
+                    </div>
+                    <div class="feature">
+                        <h4><i class="fas fa-save"></i> Local Storage</h4>
+                        <p>Your todos persist across sessions</p>
+                    </div>
+                </div>
+
+                <div class="demo-buttons">
+                    <a href="demo.html" class="demo-btn primary">
+                        <i class="fas fa-play"></i> Launch TodoMaster
+                    </a>
+                    <a href="https://github.com/0ashutosh1/TODO-APP" class="demo-btn" target="_blank">
+                        <i class="fab fa-github"></i> View Source Code
+                    </a>
+                    <a href="https://0ashutosh1.github.io/portfolio" class="demo-btn" target="_blank">
+                        <i class="fas fa-user"></i> Developer Portfolio
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Auto-redirect to demo after 3 seconds -->
+    <script>
+        // Show loading for 3 seconds then redirect to demo
+        setTimeout(() => {
+            window.location.href = 'demo.html';
+        }, 3000);
+
+        // Also allow immediate click
+        document.addEventListener('click', () => {
+            window.location.href = 'demo.html';
+        });
+    </script>
+</body>
+</html>
